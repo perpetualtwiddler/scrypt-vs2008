@@ -29,7 +29,18 @@
 #include "scrypt_platform.h"
 
 #include <sys/types.h>
+
+#ifdef _MSC_VER				/* For Visual Studio getrlimit() equivalent */
+
+#include <windows.h>
+#define VSZU "%Iu"
+
+#else
+
 #include <sys/resource.h>
+#define VSZU "%zu"
+
+#endif	/* _MSC_VER */
 
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
@@ -138,6 +149,33 @@ memlimit_sysinfo(size_t * memlimit)
 }
 #endif /* HAVE_SYSINFO */
 
+#ifdef _MSC_VER					/* Visual Studio */
+
+static int
+memlimit_rlimit(size_t * memlimit)
+{
+	SYSTEM_INFO sysinfo;
+	HANDLE hproc;
+	SIZE_T dwmin = 0;
+	SIZE_T dwmax = 345; /* Seems like the default max from msdn */
+
+	sysinfo.dwPageSize = 4096;	/* Default to 4K */
+	GetSystemInfo(&sysinfo);
+
+	hproc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+						FALSE, _getpid());
+	if (!GetProcessWorkingSetSize(hproc, &dwmin, &dwmax)) {
+#ifdef DEBUG
+		fprintf(stderr, "failed to get max working set size. E=%d\n",
+				GetLastError());
+#endif
+	}
+	*memlimit = dwmax * sysinfo.dwPageSize;
+	return (0);
+}
+
+#else 
+
 static int
 memlimit_rlimit(size_t * memlimit)
 {
@@ -185,6 +223,9 @@ memlimit_rlimit(size_t * memlimit)
 	/* Success! */
 	return (0);
 }
+
+#endif /* _MSC_VER */
+
 
 #ifdef _SC_PHYS_PAGES
 
@@ -263,7 +304,7 @@ memtouse(size_t maxmem, double maxmemfrac, size_t * memlimit)
 #endif
 
 #ifdef DEBUG
-	fprintf(stderr, "Memory limits are %zu %zu %zu %zu\n",
+	fprintf(stderr, "Memory limits are " VSZU " " VSZU " " VSZU "\n",
 	    sysctl_memlimit, sysinfo_memlimit, rlimit_memlimit,
 	    sysconf_memlimit);
 #endif
@@ -293,7 +334,8 @@ memtouse(size_t maxmem, double maxmemfrac, size_t * memlimit)
 		memavail = 1048576;
 
 #ifdef DEBUG
-	fprintf(stderr, "Allowing up to %zu memory to be used\n", memavail);
+	fprintf(stderr, "Allowing up to " VSZU " memory to be used\n",
+			memavail);
 #endif
 
 	/* Return limit via the provided pointer. */

@@ -100,14 +100,14 @@ main(int argc, char *argv[])
 		usage();
 
 	/* Open the input file. */
-	if ((infile = fopen(argv[0], "r")) == NULL) {
+	if ((infile = fopen(argv[0], "rb")) == NULL) {
 		warn("Cannot open input file: %s", argv[0]);
 		exit(1);
 	}
 
 	/* If we have an output file, open it. */
 	if (argc > 1) {
-		if ((outfile = fopen(argv[1], "w")) == NULL) {
+		if ((outfile = fopen(argv[1], "wb")) == NULL) {
 			warn("Cannot open output file: %s", argv[1]);
 			exit(1);
 		}

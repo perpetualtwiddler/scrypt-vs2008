@@ -1,0 +1,44 @@
+configure_args =
+
+builddir = build
+cc = cl
+ld = link
+cflags = /c /nologo /Ox /MD /W3 -D_WIN32_WINNT=0x501 /DNDEBUG /DHAVE_CONFIG_H /D_CRT_SECURE_NO_WARNINGS
+ldflags = /nologo /INCREMENTAL:NO
+openssldir = c:\OpenSSL-Win32
+openssllibpath = $openssldir\lib\libeay32.lib
+includes = -I. -Ilib/util -Ilib/scryptenc -Ilib/crypto -Iwinincl -I$openssldir\include
+
+rule cc
+  command = $cc /showIncludes $cflags $includes /Fo$out -c $in
+  description = CXX $out
+  deps = msvc
+
+rule exe
+  command = $ld $ldflags /OUT:$builddir/$out.exe $in $libs $openssllibpath
+  description = LINK $out
+
+build $builddir/scrypt-main.obj: cc main.c
+build $builddir/scrypt-memlimit.obj: cc lib/util/memlimit.c
+build $builddir/scrypt-readpass.obj: cc lib/util/readpass.c
+build $builddir/scrypt-warn.obj: cc lib/util/warn.c
+build $builddir/scrypt-scryptenc.obj: cc lib/scryptenc/scryptenc.c
+build $builddir/scrypt-scryptenc_cpuperf.obj: cc lib/scryptenc/scryptenc_cpuperf.c
+build $builddir/scrypt-crypto_aesctr.obj: cc lib/crypto/crypto_aesctr.c
+build $builddir/scrypt-sha256.obj: cc lib/crypto/sha256.c
+build $builddir/scrypt-crypto_scrypt-nosse.obj: cc lib/crypto/crypto_scrypt-nosse.c
+build $builddir/scrypt-getopt.obj: cc lib/scryptenc/getopt.c
+build $builddir/scrypt-gettimeofday.obj: cc lib/scryptenc/gettimeofday.c
+
+build scrypt: exe $builddir/scrypt-main.obj $
+    $builddir/scrypt-crypto_scrypt-nosse.obj $
+    $builddir/scrypt-memlimit.obj $builddir/scrypt-readpass.obj $
+    $builddir/scrypt-warn.obj $builddir/scrypt-scryptenc.obj $
+    $builddir/scrypt-scryptenc_cpuperf.obj $
+    $builddir/scrypt-crypto_aesctr.obj $builddir/scrypt-getopt.obj $
+    $builddir/scrypt-sha256.obj $builddir/scrypt-gettimeofday.obj
+  libs = advapi32.lib
+
+default scrypt
+
+build all: phony scrypt

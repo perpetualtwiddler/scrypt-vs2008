@@ -1,0 +1,34 @@
+
+This is a fork of scrypt from http://www.tarsnap.com/scrypt.html.
+This fork is for building scrypt on Windows using Visual Studio 2008
+(without MinGW)
+
+Summary of changes in scrypt 1.1.6:
+
+- Use proxy header files for those not available on Windows:
+  inttypes.h, stdint.h, unistd.h
+
+- Additionally borrow gettimeofday() and getopt() functionality from
+  PostgreSQL and freegetopt respectively
+
+- Modify getsalt(), memlimit_rlimit(), and tarsnap_readpass() for
+  Windows
+
+- Include minor changes in fprintf() format specification for Windows
+
+- Borrow pre-generated config.h from py-scrypt source
+
+- Use ninja (http://martine.github.io/ninja/) to build scrypt.exe,
+  include hand-written build.ninja file (naive attempt)
+
+
+
+To build on Windows with Visual Studio 2008 Express Edition installed:
+
+- Run vsvars32.bat found in %VS90COMNTOOLS% directory
+
+- Manually create 'build' directory under scrypt-1.1.6
+
+- Run 'ninja -v'
+
+scrypt.exe should be is created in the 'build' directory.

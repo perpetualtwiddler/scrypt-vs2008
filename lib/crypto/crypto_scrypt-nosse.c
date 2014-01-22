@@ -28,8 +28,13 @@
  */
 #include "scrypt_platform.h"
 
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif /* HAVE_SYS_TYPES_H */
+
+#ifndef _WIN32
 #include <sys/mman.h>
+#endif /* _WIN32 */
 
 #include <errno.h>
 #include <stdint.h>

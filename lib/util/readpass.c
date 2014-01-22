@@ -28,7 +28,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef _MSC_VER                /* Visual Studio */
 #include <termios.h>
+#else
+#include <windows.h>
+#include <io.h>
+#endif /* _WIN32 */
+
 #include <unistd.h>
 
 #include "warn.h"
@@ -55,8 +62,10 @@ tarsnap_readpass(char ** passwd, const char * prompt,
 	FILE * readfrom;
 	char passbuf[MAXPASSLEN];
 	char confpassbuf[MAXPASSLEN];
-	struct termios term, term_old;
 	int usingtty;
+
+#ifndef _MSC_VER
+	struct termios term, term_old;
 
 	/*
 	 * If devtty != 0, try to open /dev/tty; if that fails, or if devtty
@@ -79,6 +88,20 @@ tarsnap_readpass(char ** passwd, const char * prompt,
 		}
 	}
 
+#else  /* _MSC_VER */
+
+	DWORD mode = 0;
+	HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+
+	readfrom = stdin;
+	if (_isatty(_fileno(readfrom))) {
+		usingtty = 1;
+		GetConsoleMode(hStdin, &mode);
+		SetConsoleMode(hStdin, mode & (~ENABLE_ECHO_INPUT));
+	}
+
+#endif  /* _MSC_VER */
+
 retry:
 	/* If we have a terminal, prompt the user to enter the password. */
 	if (usingtty)
@@ -92,12 +115,22 @@ retry:
 
 	/* Confirm the password if necessary. */
 	if (confirmprompt != NULL) {
-		if (usingtty)
+		if (usingtty) {
+#ifdef _MSC_VER
+			fprintf(stderr, "%s", "\n");
+#endif
 			fprintf(stderr, "%s: ", confirmprompt);
+        }
 		if (fgets(confpassbuf, MAXPASSLEN, readfrom) == NULL) {
 			warn("Cannot read password");
 			goto err2;
 		}
+
+#ifdef _MSC_VER
+		if (usingtty)
+			fprintf(stderr, "%s", "\n");
+#endif
+
 		if (strcmp(passbuf, confpassbuf)) {
 			fprintf(stderr,
 			    "Passwords mismatch, please try again\n");
@@ -109,8 +142,13 @@ retry:
 	passbuf[strcspn(passbuf, "\r\n")] = '\0';
 
 	/* If we changed terminal settings, reset them. */
+#ifndef _WIN32
 	if (usingtty)
 		tcsetattr(fileno(readfrom), TCSANOW, &term_old);
+#else
+	if (usingtty)
+		SetConsoleMode(hStdin, mode);
+#endif
 
 	/* Close /dev/tty if we opened it. */
 	if (readfrom != stdin)
@@ -131,8 +169,15 @@ retry:
 
 err2:
 	/* Reset terminal settings if necessary. */
+#ifndef _WIN32
 	if (usingtty)
 		tcsetattr(fileno(readfrom), TCSAFLUSH, &term_old);
+#else
+	if (usingtty)
+		SetConsoleMode(hStdin, mode);
+#endif
+
+
 err1:
 	/* Close /dev/tty if we opened it. */
 	if (readfrom != stdin)

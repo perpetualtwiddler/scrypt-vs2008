@@ -46,6 +46,18 @@
 
 #include "scryptenc.h"
 
+#ifdef _MSC_VER 				/* Visual Studio */
+#include <windows.h>
+#include <Wincrypt.h>
+
+#define VSZU "%Iu"
+
+#else
+
+#define VSZU "%zu"
+
+#endif
+
 #define ENCBLOCK 65536
 
 static int pickparams(size_t, double, double,
@@ -85,7 +97,7 @@ pickparams(size_t maxmem, double maxmemfrac, double maxtime,
 	 * opslimit imposes the stronger limit on N.
 	 */
 #ifdef DEBUG
-	fprintf(stderr, "Requiring 128Nr <= %zu, 4Nrp <= %f\n",
+	fprintf(stderr, "Requiring 128Nr <= " VSZU ", 4Nrp <= %f\n",
 	    memlimit, opslimit);
 #endif
 	if (opslimit < memlimit/32) {
@@ -112,7 +124,7 @@ pickparams(size_t maxmem, double maxmemfrac, double maxtime,
 	}
 
 #ifdef DEBUG
-	fprintf(stderr, "N = %zu r = %d p = %d\n",
+	fprintf(stderr, "N = " VSZU " r = %d p = %d\n",
 	    (size_t)(1) << *logN, (int)(*r), (int)(*p));
 #endif
 
@@ -156,6 +168,8 @@ checkparams(size_t maxmem, double maxmemfrac, double maxtime,
 	return (0);
 }
 
+#ifndef _MSC_VER
+
 static int
 getsalt(uint8_t salt[32])
 {
@@ -197,6 +211,26 @@ err0:
 	/* Failure! */
 	return (4);
 }
+
+#else /* _MSC_VER: now for Visual Studio */
+
+static int
+getsalt(uint8_t salt[32])
+{
+	BYTE * buf = (BYTE *) salt;
+	DWORD buflen = 32;
+	HCRYPTPROV hcryptprov;
+
+	if (!CryptAcquireContext(&hcryptprov, 0, 0, PROV_RSA_FULL, 0)) {
+		return (4);
+	}
+	if (!CryptGenRandom(hcryptprov, buflen, buf)) {
+		return (4);
+	}
+	return (0);
+}
+
+#endif /* _MSC_VER */
 
 static int
 scryptenc_setup(uint8_t header[96], uint8_t dk[64],
