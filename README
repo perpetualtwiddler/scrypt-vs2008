@@ -9,7 +9,8 @@ Summary of changes in scrypt 1.1.6:
   inttypes.h, stdint.h, unistd.h
 
 - Additionally borrow gettimeofday() and getopt() functionality from
-  PostgreSQL and freegetopt respectively
+  PostgreSQL and freegetopt (http://freegetopt.sourceforge.net/)
+  respectively
 
 - Modify getsalt(), memlimit_rlimit(), and tarsnap_readpass() for
   Windows
@@ -25,10 +26,16 @@ Summary of changes in scrypt 1.1.6:
 
 To build on Windows with Visual Studio 2008 Express Edition installed:
 
+- Install OpenSSL binaries (may be from here:
+  http://slproweb.com/products/Win32OpenSSL.html)
+
+- If required, modify 'build.ninja' in (scrypt-1.1.6 directory) based
+  on the OpenSSL install directory
+
 - Run vsvars32.bat found in %VS90COMNTOOLS% directory
 
 - Manually create 'build' directory under scrypt-1.1.6
 
 - Run 'ninja -v'
 
-scrypt.exe should be is created in the 'build' directory.
+scrypt.exe should be created in the 'build' directory.
