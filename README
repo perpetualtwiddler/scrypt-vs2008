@@ -6,7 +6,8 @@ This fork is for building scrypt on Windows using Visual Studio 2008
 Summary of changes in scrypt 1.1.6:
 
 - Use proxy header files for those not available on Windows:
-  inttypes.h, stdint.h, unistd.h
+  inttypes.h & stdint.h (from http://code.google.com/p/msinttypes/)
+  unistd.h (from http://stackoverflow.com/a/826027)
 
 - Additionally borrow gettimeofday() and getopt() functionality from
   PostgreSQL and freegetopt (http://freegetopt.sourceforge.net/)
@@ -18,6 +19,7 @@ Summary of changes in scrypt 1.1.6:
 - Include minor changes in fprintf() format specification for Windows
 
 - Borrow pre-generated config.h from py-scrypt source
+  (https://bitbucket.org/mhallin/py-scrypt/src)
 
 - Use ninja (http://martine.github.io/ninja/) to build scrypt.exe,
   include hand-written build.ninja file (naive attempt)
@@ -28,6 +30,9 @@ To build on Windows with Visual Studio 2008 Express Edition installed:
 
 - Install OpenSSL binaries (may be from here:
   http://slproweb.com/products/Win32OpenSSL.html)
+
+- Install ninja if required (zip contains single ninja.exe binary:
+  https://github.com/martine/ninja/releases/download/v1.4.0/ninja-win.zip)
 
 - If required, modify 'build.ninja' in (scrypt-1.1.6 directory) based
   on the OpenSSL install directory
