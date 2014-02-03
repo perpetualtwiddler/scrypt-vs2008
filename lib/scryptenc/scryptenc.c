@@ -215,14 +215,33 @@ getsalt(uint8_t salt[32])
 	BYTE * buf = (BYTE *) salt;
 	DWORD buflen = 32;
 	HCRYPTPROV hcryptprov;
+	int funcrv = 0;
 
 	if (!CryptAcquireContext(&hcryptprov, 0, 0, PROV_RSA_FULL, 0)) {
-		return (4);
+		DWORD wrv = GetLastError();
+		int attempt = 1;
+		if (wrv == NTE_BAD_KEYSET) {
+			++attempt;
+			if (!CryptAcquireContext(&hcryptprov, 0, 0, PROV_RSA_FULL,
+									 CRYPT_NEWKEYSET)) {
+				wrv = GetLastError();
+				funcrv = 4;
+			}
+		} else {
+			funcrv = 4;
+		}
+		if (funcrv) {
+			fprintf(stderr, "CryptAcquireContext() failed. Attempts=%d MSDN ERR=%d",
+					attempt, wrv);
+			return funcrv;
+		}
 	}
 	if (!CryptGenRandom(hcryptprov, buflen, buf)) {
-		return (4);
+		DWORD wrv = GetLastError();
+		fprintf(stderr, "CryptGenRandom() failed. MSDN ERR=%d", wrv);
+		funcrv = 4;
 	}
-	return (0);
+	return funcrv;
 }
 
 #endif /* _MSC_VER */
