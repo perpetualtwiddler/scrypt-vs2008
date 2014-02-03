@@ -33,12 +33,10 @@
 #ifdef _MSC_VER				/* For Visual Studio getrlimit() equivalent */
 
 #include <windows.h>
-#define VSZU "%Iu"
 
 #else
 
 #include <sys/resource.h>
-#define VSZU "%zu"
 
 #endif	/* _MSC_VER */
 
@@ -304,9 +302,11 @@ memtouse(size_t maxmem, double maxmemfrac, size_t * memlimit)
 #endif
 
 #ifdef DEBUG
-	fprintf(stderr, "Memory limits are " VSZU " " VSZU " " VSZU "\n",
-	    sysctl_memlimit, sysinfo_memlimit, rlimit_memlimit,
-	    sysconf_memlimit);
+	fprintf(stderr, "Memory limits are %llu %llu %llu %llu\n",
+			(unsigned long long) sysctl_memlimit,
+			(unsigned long long) sysinfo_memlimit,
+			(unsigned long long) rlimit_memlimit,
+			(unsigned long long) sysconf_memlimit);
 #endif
 
 	/* Find the smallest of them. */
@@ -334,8 +334,8 @@ memtouse(size_t maxmem, double maxmemfrac, size_t * memlimit)
 		memavail = 1048576;
 
 #ifdef DEBUG
-	fprintf(stderr, "Allowing up to " VSZU " memory to be used\n",
-			memavail);
+	fprintf(stderr, "Allowing up to %llu memory to be used\n",
+			(unsigned long long) memavail);
 #endif
 
 	/* Return limit via the provided pointer. */

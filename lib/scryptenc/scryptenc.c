@@ -47,14 +47,9 @@
 #include "scryptenc.h"
 
 #ifdef _MSC_VER 				/* Visual Studio */
+
 #include <windows.h>
 #include <Wincrypt.h>
-
-#define VSZU "%Iu"
-
-#else
-
-#define VSZU "%zu"
 
 #endif
 
@@ -97,8 +92,8 @@ pickparams(size_t maxmem, double maxmemfrac, double maxtime,
 	 * opslimit imposes the stronger limit on N.
 	 */
 #ifdef DEBUG
-	fprintf(stderr, "Requiring 128Nr <= " VSZU ", 4Nrp <= %f\n",
-	    memlimit, opslimit);
+	fprintf(stderr, "Requiring 128Nr <= %llu, 4Nrp <= %f\n",
+			(unsigned long long) memlimit, opslimit);
 #endif
 	if (opslimit < memlimit/32) {
 		/* Set p = 1 and choose N based on the CPU limit. */
@@ -124,8 +119,8 @@ pickparams(size_t maxmem, double maxmemfrac, double maxtime,
 	}
 
 #ifdef DEBUG
-	fprintf(stderr, "N = " VSZU " r = %d p = %d\n",
-	    (size_t)(1) << *logN, (int)(*r), (int)(*p));
+	fprintf(stderr, "N = %llu r = %d p = %d\n",
+	    (unsigned long long)(1) << *logN, (int)(*r), (int)(*p));
 #endif
 
 	/* Success! */
