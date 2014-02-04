@@ -29,7 +29,10 @@
 #include "scrypt_platform.h"
 
 #include <sys/types.h>
+
+#ifndef _WIN32
 #include <sys/mman.h>
+#endif /* _WIN32 */
 
 #include <emmintrin.h>
 #include <errno.h>
@@ -78,7 +81,7 @@ blkxor(void * dest, void * src, size_t len)
  * Apply the salsa20/8 core to the provided block.
  */
 static void
-salsa20_8(__m128i B[4])
+salsa20_8(__m128i * B)
 {
 	__m128i X0, X1, X2, X3;
 	__m128i T;

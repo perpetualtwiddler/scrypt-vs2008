@@ -3,7 +3,11 @@ configure_args =
 builddir = build
 cc = cl
 ld = link
-cflags = /c /nologo /Ox /MD /W3 -D_WIN32_WINNT=0x501 /DNDEBUG /DHAVE_CONFIG_H /D_CRT_SECURE_NO_WARNINGS
+
+# /FD - renames .pdb file.  required?
+# /Zi - generats complete debug information, implies /debug.  required?
+cflags = /c /nologo /Ox /MD /W3 -D_WIN32_WINNT=0x501 /DNDEBUG /DHAVE_CONFIG_H /D_CRT_SECURE_NO_WARNINGS /TC
+
 ldflags = /nologo /INCREMENTAL:NO
 openssldir = c:\OpenSSL-Win32
 openssllibpath = $openssldir\lib\libeay32.lib
@@ -26,11 +30,21 @@ build $builddir/scrypt-scryptenc.obj: cc lib/scryptenc/scryptenc.c
 build $builddir/scrypt-scryptenc_cpuperf.obj: cc lib/scryptenc/scryptenc_cpuperf.c
 build $builddir/scrypt-crypto_aesctr.obj: cc lib/crypto/crypto_aesctr.c
 build $builddir/scrypt-sha256.obj: cc lib/crypto/sha256.c
+build $builddir/scrypt-crypto_scrypt-sse.obj: cc lib/crypto/crypto_scrypt-sse.c
 build $builddir/scrypt-crypto_scrypt-nosse.obj: cc lib/crypto/crypto_scrypt-nosse.c
 build $builddir/scrypt-getopt.obj: cc lib/scryptenc/getopt.c
 build $builddir/scrypt-gettimeofday.obj: cc lib/scryptenc/gettimeofday.c
 
-build scrypt: exe $builddir/scrypt-main.obj $
+build scryptsse: exe $builddir/scrypt-main.obj $
+    $builddir/scrypt-crypto_scrypt-sse.obj $
+    $builddir/scrypt-memlimit.obj $builddir/scrypt-readpass.obj $
+    $builddir/scrypt-warn.obj $builddir/scrypt-scryptenc.obj $
+    $builddir/scrypt-scryptenc_cpuperf.obj $
+    $builddir/scrypt-crypto_aesctr.obj $builddir/scrypt-getopt.obj $
+    $builddir/scrypt-sha256.obj $builddir/scrypt-gettimeofday.obj
+  libs = advapi32.lib
+
+build scryptnosse: exe $builddir/scrypt-main.obj $
     $builddir/scrypt-crypto_scrypt-nosse.obj $
     $builddir/scrypt-memlimit.obj $builddir/scrypt-readpass.obj $
     $builddir/scrypt-warn.obj $builddir/scrypt-scryptenc.obj $
@@ -39,6 +53,7 @@ build scrypt: exe $builddir/scrypt-main.obj $
     $builddir/scrypt-sha256.obj $builddir/scrypt-gettimeofday.obj
   libs = advapi32.lib
 
-default scrypt
 
-build all: phony scrypt
+default scryptsse scryptnosse
+
+build all: phony scryptsse scryptnosse
