@@ -33,8 +33,8 @@ build $builddir/scrypt-sha256.obj: cc lib/crypto/sha256.c
 build $builddir/scrypt-crypto_scrypt-sse.obj: cc lib/crypto/crypto_scrypt-sse.c
 build $builddir/scrypt-crypto_scrypt-nosse.obj: cc lib/crypto/crypto_scrypt-nosse.c
 build $builddir/scrypt-mman.obj: cc winsrc/mman.c
-build $builddir/scrypt-getopt.obj: cc lib/scryptenc/getopt.c
-build $builddir/scrypt-gettimeofday.obj: cc lib/scryptenc/gettimeofday.c
+build $builddir/scrypt-getopt.obj: cc winsrc/getopt.c
+build $builddir/scrypt-gettimeofday.obj: cc winsrc/gettimeofday.c
 
 build scryptsse: exe $builddir/scrypt-main.obj $
     $builddir/scrypt-crypto_scrypt-sse.obj $
