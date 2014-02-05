@@ -13,6 +13,9 @@
 /* All the headers include this file. */
 #ifndef _MSC_VER
 #include <_mingw.h>
+#else /* Not sure windows.h & io.h are required for MinGW, avoid for now */
+#include <windows.h>
+#include <io.h>
 #endif
 
 #include <sys/types.h>

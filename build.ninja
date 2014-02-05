@@ -32,6 +32,7 @@ build $builddir/scrypt-crypto_aesctr.obj: cc lib/crypto/crypto_aesctr.c
 build $builddir/scrypt-sha256.obj: cc lib/crypto/sha256.c
 build $builddir/scrypt-crypto_scrypt-sse.obj: cc lib/crypto/crypto_scrypt-sse.c
 build $builddir/scrypt-crypto_scrypt-nosse.obj: cc lib/crypto/crypto_scrypt-nosse.c
+build $builddir/scrypt-mman.obj: cc winsrc/mman.c
 build $builddir/scrypt-getopt.obj: cc lib/scryptenc/getopt.c
 build $builddir/scrypt-gettimeofday.obj: cc lib/scryptenc/gettimeofday.c
 
@@ -40,6 +41,7 @@ build scryptsse: exe $builddir/scrypt-main.obj $
     $builddir/scrypt-memlimit.obj $builddir/scrypt-readpass.obj $
     $builddir/scrypt-warn.obj $builddir/scrypt-scryptenc.obj $
     $builddir/scrypt-scryptenc_cpuperf.obj $
+    $builddir/scrypt-mman.obj $
     $builddir/scrypt-crypto_aesctr.obj $builddir/scrypt-getopt.obj $
     $builddir/scrypt-sha256.obj $builddir/scrypt-gettimeofday.obj
   libs = advapi32.lib
@@ -49,6 +51,7 @@ build scryptnosse: exe $builddir/scrypt-main.obj $
     $builddir/scrypt-memlimit.obj $builddir/scrypt-readpass.obj $
     $builddir/scrypt-warn.obj $builddir/scrypt-scryptenc.obj $
     $builddir/scrypt-scryptenc_cpuperf.obj $
+    $builddir/scrypt-mman.obj $
     $builddir/scrypt-crypto_aesctr.obj $builddir/scrypt-getopt.obj $
     $builddir/scrypt-sha256.obj $builddir/scrypt-gettimeofday.obj
   libs = advapi32.lib

@@ -30,9 +30,7 @@
 
 #include <sys/types.h>
 
-#ifndef _WIN32
-#include <sys/mman.h>
-#endif /* _WIN32 */
+#include <sys/mman.h>  /* NOTE: from SRCROOT/winincl on Windows */
 
 #include <emmintrin.h>
 #include <errno.h>
