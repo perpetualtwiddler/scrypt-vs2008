@@ -231,16 +231,24 @@ getsalt(uint8_t salt[32])
 			funcrv = 4;
 		}
 		if (funcrv) {
-			fprintf(stderr, "CryptAcquireContext() failed. Attempts=%d MSDN ERR=%d",
+			fprintf(stderr,
+					"CryptAcquireContext() failed. Calls=%d GetLastError()=%d",
 					attempt, wrv);
 			return funcrv;
 		}
 	}
 	if (!CryptGenRandom(hcryptprov, buflen, buf)) {
 		DWORD wrv = GetLastError();
-		fprintf(stderr, "CryptGenRandom() failed. MSDN ERR=%d", wrv);
+		fprintf(stderr, "CryptGenRandom() failed. GetLastError()=%d", wrv);
 		funcrv = 4;
 	}
+	if (!CryptReleaseContext(hcryptprov, 0)) {
+		DWORD wrv = GetLastError();
+		fprintf(stderr,
+				"INFO: CryptReleaseContext() failed. GetLastError()=%d",
+				wrv);
+    }
+
 	return funcrv;
 }
 
