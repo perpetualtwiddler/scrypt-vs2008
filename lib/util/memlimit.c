@@ -168,6 +168,7 @@ memlimit_rlimit(size_t * memlimit)
 				GetLastError());
 #endif
 	}
+	CloseHandle(hproc);
 	*memlimit = dwmax * sysinfo.dwPageSize;
 	return (0);
 }
